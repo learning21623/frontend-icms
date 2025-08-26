@@ -1,114 +1,84 @@
-import { useState } from 'react';
-import axios from 'axios';
+import { useState } from "react";
+import axios from "axios";
+import { Button, Form } from "react-bootstrap";
+import { useNavigate, Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import AuthLayout from "../components/layout/AuthLayout";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    mobile: '',
-    password: '',
-    role: 'customer', // default role expected by backend
+    firstName: "",
+    lastName: "",
+    email: "",
+    mobile: "",
+    password: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleRegister = async () => {
     try {
-      // Check basic client-side validation
       if (!formData.firstName || !formData.lastName || !formData.email || !formData.mobile || !formData.password) {
-        alert('Please fill in all fields.');
-        return;
-      }
-      if (formData.firstName.length < 2 || formData.lastName.length < 2) {
-  alert("First and Last name must be at least 2 characters.");
-  return;
-}
-
-      if (!/^\d{10}$/.test(formData.mobile)) {
-        alert('Mobile number must be exactly 10 digits.');
+        toast.error("Please fill all fields");
         return;
       }
 
-      const response = await axios.post('http://localhost:8000/api/user/add', formData);
-      alert('Registration successful!');
-      console.log(response.data);
-    } catch (error: any) {
-      console.error('Registration error:', error.response?.data || error.message);
-      alert('Registration failed. Please check the data and try again.');
-    }
-  };
+      await axios.post("http://localhost:8000/api/user/add", {
+        ...formData,
+        role: "customer",
+      });
 
-  // For testing: sends working hardcoded data
-  const testRegister = async () => {
-    try {
-      const testData = {
-        firstName: "Hariom",
-        lastName: "Verma",
-        email: "hariomveyet@example.com",
-        mobile: "9999996797",
-        password: "SecurePass123",
-        role: 'customer',
-      };
-      const response = await axios.post('http://localhost:8000/api/user/add', testData);
-      alert('Test Registration successful!');
-      console.log('Test Response:', response.data);
+      toast.success("Registration successful!");
+      navigate("/");
     } catch (error: any) {
-      console.error('Test Registration error:', error.response?.data || error.message);
-      alert('Test Registration failed!');
+      toast.error("Registration failed: " + (error.response?.data?.message || error.message));
     }
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Register</h2>
+    <AuthLayout>
+      <Form>
+        <Form.Group className="mb-3">
+          <Form.Label>First Name</Form.Label>
+          <Form.Control name="firstName" placeholder="First Name" onChange={handleChange} />
+        </Form.Group>
 
-      <input
-        name="firstName"
-        placeholder="First Name"
-        value={formData.firstName}
-        onChange={handleChange}
-      /><br />
+        <Form.Group className="mb-3">
+          <Form.Label>Last Name</Form.Label>
+          <Form.Control name="lastName" placeholder="Last Name" onChange={handleChange} />
+        </Form.Group>
 
-      <input
-        name="lastName"
-        placeholder="Last Name"
-        value={formData.lastName}
-        onChange={handleChange}
-      /><br />
+        <Form.Group className="mb-3">
+          <Form.Label>Email</Form.Label>
+          <Form.Control type="email" name="email" placeholder="Email" onChange={handleChange} />
+        </Form.Group>
 
-      <input
-        name="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
-      /><br />
+        <Form.Group className="mb-3">
+          <Form.Label>Mobile</Form.Label>
+          <Form.Control name="mobile" placeholder="10-digit Mobile" onChange={handleChange} />
+        </Form.Group>
 
-      <input
-        name="mobile"
-        placeholder="Mobile (10 digits)"
-        value={formData.mobile}
-        onChange={handleChange}
-      /><br />
+        <Form.Group className="mb-3">
+          <Form.Label>Password</Form.Label>
+          <Form.Control type="password" name="password" placeholder="Password" onChange={handleChange} />
+        </Form.Group>
 
-      <input
-        name="password"
-        type="password"
-        placeholder="Password"
-        value={formData.password}
-        onChange={handleChange}
-      /><br />
-
-      <button onClick={handleRegister}>Register</button>
-      <hr />
-      <button onClick={testRegister}>Test Register (Hardcoded Data)</button>
-    </div>
+        <Button
+          className="w-100"
+          style={{ backgroundColor: "#d4af37", border: "none" }}
+          onClick={handleRegister}
+        >
+          Register
+        </Button>
+      </Form>
+      <p className="mt-3 text-center">
+        Already have an account? <Link to="/">Login</Link>
+      </p>
+      <ToastContainer />
+    </AuthLayout>
   );
 };
 
