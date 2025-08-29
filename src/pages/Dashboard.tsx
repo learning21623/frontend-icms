@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Pencil, Trash2 } from "lucide-react";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 type RoleOption =
   | "admin"
   | "customer"
@@ -62,7 +64,7 @@ const Dashboard: React.FC = () => {
   // 🔹 Fetch Users
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:8001/api/user/list", {
+      const response = await axios.get(`${API_BASE_URL}/user/list`, {
         params: { page: 1, limit: 10 },
         withCredentials: true,
       });
@@ -96,13 +98,13 @@ const Dashboard: React.FC = () => {
     try {
       if (editUserId) {
         await axios.put(
-          `http://localhost:8001/api/user/update?userId=${editUserId}`,
+          `${API_BASE_URL}/user/update?userId=${editUserId}`,
           formData,
           { withCredentials: true }
         );
         alert("User updated successfully!");
       } else {
-        await axios.post("http://localhost:8001/api/user/add", formData, {
+        await axios.post(`${API_BASE_URL}/user/add`, formData, {
           withCredentials: true,
         });
         alert("User created successfully!");
@@ -143,7 +145,7 @@ const Dashboard: React.FC = () => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       await axios.delete(
-        `http://localhost:8001/api/user/delete?userId=${userId}`,
+        `${API_BASE_URL}/user/delete?userId=${userId}`,
         { withCredentials: true }
       );
       alert("User deleted successfully!");
