@@ -1,9 +1,24 @@
 // src/pages/Dashboard.tsx
+import { GridLegacy as Grid } from '@mui/material';
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Pencil, Trash2 } from "lucide-react";
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+import {
+  Box,
+  Button,
+  IconButton,
+  MenuItem,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+  Paper,
+  TablePagination,
+} from "@mui/material";
+import { ArrowBack, Edit, Delete } from "@mui/icons-material";
 
 type RoleOption =
   | "admin"
@@ -29,7 +44,6 @@ type User = {
     id: number;
     name: RoleOption;
   };
-  createdAt: string;
 };
 
 const roleOptions: RoleOption[] = [
@@ -49,6 +63,8 @@ const roleOptions: RoleOption[] = [
 
 const Dashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(0); // MUI uses 0-based index
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<any>({
@@ -61,50 +77,41 @@ const Dashboard: React.FC = () => {
   });
   const [editUserId, setEditUserId] = useState<number | null>(null);
 
-  // 🔹 Fetch Users
+  const rowsPerPage = 10; // fixed
+
+  // Fetch Users
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/user/list`, {
-        params: { page: 1, limit: 10 },
+      const response = await axios.get("http://localhost:8000/api/user/list", {
+        params: { page: page + 1, limit: rowsPerPage }, // backend expects 1-based
         withCredentials: true,
       });
-
-      // ✅ Fix "users.filter is not a function"
-      const data = response.data?.data?.users;
-      if (Array.isArray(data)) {
-        setUsers(data);
-      } else {
-        setUsers([]);
-      }
+      setUsers(response.data?.data?.users || []);
+      setTotalCount(response.data?.data?.count || 0);
     } catch (error) {
       console.error("Error fetching users:", error);
-      setUsers([]);
     }
   };
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [page]); // refetch when page changes
 
-  // 🔹 Handle Input
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Add or Update User
   const handleSave = async () => {
     try {
       if (editUserId) {
         await axios.put(
-          `${API_BASE_URL}/user/update?userId=${editUserId}`,
+          `http://localhost:8000/api/user/update?userId=${editUserId}`,
           formData,
           { withCredentials: true }
         );
         alert("User updated successfully!");
       } else {
-        await axios.post(`${API_BASE_URL}/user/add`, formData, {
+        await axios.post("http://localhost:8000/api/user/add", formData, {
           withCredentials: true,
         });
         alert("User created successfully!");
@@ -121,12 +128,10 @@ const Dashboard: React.FC = () => {
       setEditUserId(null);
       fetchUsers();
     } catch (error) {
-      console.error("Error saving user:", error);
       alert("Failed to save user");
     }
   };
 
-  // 🔹 Edit User
   const handleEdit = (user: User) => {
     setFormData({
       firstName: user.firstName,
@@ -140,23 +145,19 @@ const Dashboard: React.FC = () => {
     setShowForm(true);
   };
 
-  // 🔹 Delete User
   const handleDelete = async (userId: number) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    if (!window.confirm("Delete this user?")) return;
     try {
       await axios.delete(
-        `${API_BASE_URL}/user/delete?userId=${userId}`,
+        `http://localhost:8000/api/user/delete?userId=${userId}`,
         { withCredentials: true }
       );
-      alert("User deleted successfully!");
       fetchUsers();
-    } catch (error) {
-      console.error("Error deleting user:", error);
+    } catch {
       alert("Failed to delete user");
     }
   };
 
-  // 🔹 Filtered Users
   const filteredUsers = users.filter(
     (u) =>
       `${u.firstName} ${u.lastName}`
@@ -167,101 +168,126 @@ const Dashboard: React.FC = () => {
   );
 
   return (
-    <div className="p-6">
-      <h4 className="text-2xl font-semibold mb-6">User Management</h4>
+    <Box p={4}>
+      <Typography variant="h5" gutterBottom>
+        User Management
+      </Typography>
 
       {showForm ? (
-        // Add/Edit Form
-        <div className="bg-white p-4 rounded-lg shadow mb-6">
-          <h5 className="text-lg font-semibold mb-4 text-center">
-            {editUserId ? "Edit User" : "Add New User"}
-          </h5>
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="text"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              placeholder="First Name"
-              className="border px-3 py-2 rounded"
-            />
-            <input
-              type="text"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
-              placeholder="Last Name"
-              className="border px-3 py-2 rounded"
-            />
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Email"
-              className="border px-3 py-2 rounded"
-              disabled={!!editUserId}
-            />
-            <input
-              type="text"
-              name="mobile"
-              value={formData.mobile}
-              onChange={handleChange}
-              placeholder="Mobile"
-              className="border px-3 py-2 rounded"
-            />
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Password"
-              className="border px-3 py-2 rounded"
-            />
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="border px-3 py-2 rounded"
-            >
-              {roleOptions.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-          </div>
+        <Paper sx={{ p: 4, position: "relative" }}>
+          {/* Back Button */}
+          <IconButton
+            onClick={() => {
+              setShowForm(false);
+              setEditUserId(null);
+            }}
+            sx={{ position: "absolute", top: 16, left: 16 }}
+          >
+            <ArrowBack />
+          </IconButton>
 
-          <div className="flex space-x-3 mt-4">
-            <button
-              onClick={() => {
-                setShowForm(false);
-                setEditUserId(null);
-              }}
-              className="px-4 py-2 border rounded"
-            >
-              ⬅ Back
-            </button>
-            <button
-              onClick={handleSave}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-            >
+          <Typography variant="h6" textAlign="center" mb={3}>
+            {editUserId ? "Edit User" : "Add New User"}
+          </Typography>
+
+          <Grid container spacing={2}>
+            {/* First Name */}
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="First Name"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            {/* Last Name */}
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Last Name"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            {/* Email */}
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            {/* Mobile */}
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Mobile"
+                name="mobile"
+                value={formData.mobile}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            {/* Password (only when adding new user) */}
+            {!editUserId && (
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Password"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+              </Grid>
+            )}
+
+            {/* Role */}
+            <Grid item xs={12} md={6}>
+              <Select
+                fullWidth
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+              >
+                {roleOptions.map((role) => (
+                  <MenuItem key={role} value={role}>
+                    {role}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Grid>
+          </Grid>
+
+
+          <Box display="flex" justifyContent="flex-end" mt={3}>
+            <Button variant="contained" color="primary" onClick={handleSave}>
               Save
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Box>
+        </Paper>
       ) : (
-        // User List
         <>
-          <div className="flex justify-between items-center mb-4">
-            <input
-              type="text"
-              placeholder="Search by name, email, phone"
+          {/* Search + Add Button */}
+          <Box display="flex" justifyContent="space-between" mb={2}>
+            <TextField
+              label="Search"
+              variant="outlined"
+              size="small"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="border border-blue-300 rounded-lg px-4 py-2 w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <button
+            <Button
+              variant="contained"
+              color="secondary"
               onClick={() => {
                 setFormData({
                   firstName: "",
@@ -274,64 +300,61 @@ const Dashboard: React.FC = () => {
                 setEditUserId(null);
                 setShowForm(true);
               }}
-              className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg shadow"
             >
               + Add User
-            </button>
-          </div>
+            </Button>
+          </Box>
 
-          <div className="bg-white rounded-xl shadow overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-6 py-3">Name</th>
-                  <th className="px-6 py-3">Email</th>
-                  <th className="px-6 py-3">Mobile</th>
-                  <th className="px-6 py-3">Role</th>
-                  <th className="px-6 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="text-center py-6 text-gray-500">
-                      No users found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredUsers.map((user) => (
-                    <tr key={user.id} className="border-b hover:bg-gray-50">
-                      <td className="px-6 py-4 font-medium text-gray-800">
-                        {user.firstName} {user.lastName}
-                      </td>
-                      <td className="px-6 py-4">{user.email}</td>
-                      <td className="px-6 py-4">{user.mobile}</td>
-                      <td className="px-6 py-4 capitalize">
-                        {user.role?.name || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 flex space-x-3">
-                        <button
-                          onClick={() => handleEdit(user)}
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          <Pencil className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(user.id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          {/* Table */}
+          <Paper>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Mobile</TableCell>
+                  <TableCell>Role</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredUsers.map((u) => (
+                  <TableRow key={u.id}>
+                    <TableCell>
+                      {u.firstName} {u.lastName}
+                    </TableCell>
+                    <TableCell>{u.email}</TableCell>
+                    <TableCell>{u.mobile}</TableCell>
+                    <TableCell>{u.role?.name}</TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => handleEdit(u)}>
+                        <Edit />
+                      </IconButton>
+                      <IconButton
+                        color="error"
+                        onClick={() => handleDelete(u.id)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            {/* Pagination */}
+            <TablePagination
+              component="div"
+              count={totalCount}
+              page={page}
+              onPageChange={(e, newPage) => setPage(newPage)}
+              rowsPerPage={rowsPerPage}
+              rowsPerPageOptions={[]} // fixed 10
+            />
+          </Paper>
         </>
       )}
-    </div>
+    </Box>
   );
 };
 

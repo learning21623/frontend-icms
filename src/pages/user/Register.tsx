@@ -26,7 +26,7 @@ const Register = () => {
         return;
       }
 
-      await axios.post("http://localhost:8001/api/user/add", {
+      await axios.post("http://localhost:8000/api/user/add", {
         ...formData,
         role: "customer",
       });
