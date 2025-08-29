@@ -1,46 +1,200 @@
-# Getting Started with Create React App
+### 🏥 Insurance Claim Management System — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the frontend application for the Insurance Claim Management System (ICMS).
+It is built with React + TypeScript + TailwindCSS and provides role-based dashboards for Admin, Customer, Agents, Hospitals, Garages, TPAs, Surveyors, and more.
 
-## Available Scripts
+### 🚀 Features
 
-In the project directory, you can run:
+* 🔑Authentication & Role-based Access (Admin, Customer, Agent, TPA, etc.)
+* 📊 User Management (Add, Edit, Delete, Search Users)
+* 📱 Responsive Layout with Sidebar & Topbar
+* 🌐 API Integration with backend (Express + PostgreSQL)
+* 🔒 Protected Routes using Context & Hooks
+* 🎨 Modern UI (TailwindCSS + Lucide Icons)
 
-### `npm start`
+### 🛠️ Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+* React 18 + TypeScript
+* React Router (role-based routing)
+* TailwindCSS (UI styling)
+* Axios (API calls)
+* Lucide-react (icons)
+* Context API + Custom Hooks (Auth handling)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 📂 Folder Structure
+    frontend-insurance-claim-management-system/
+    ├── public/                # Static assets
+    ├── src/
+    │   ├── api/
+    │   │   ├── axiosInstance.ts   # Axios config
+    │   │   └── userApi.ts         # User-related API calls
+    │   │
+    │   ├── components/
+    │   │   ├── layout/
+    │   │   │   ├── AuthLayout.tsx # Auth page wrapper
+    │   │   │   ├── Layout.tsx     # Main layout
+    │   │   │   ├── PrivateRoute.tsx # Protected routes
+    │   │   │   ├── Sidebar.tsx    # Sidebar menu
+    │   │   │   └── Topbar.tsx     # Top navigation bar
+    │   │
+    │   ├── context/
+    │   │   └── AuthContext.tsx    # Authentication context
+    │   │
+    │   ├── hooks/
+    │   │   └── useAuth.ts         # Custom auth hook
+    │   │
+    │   ├── pages/
+    │   │   └── user/
+    │   │       └── Dashboard.tsx  # User management page
+    │   │
+    │   ├── routes/
+    │   │   └── AppRoutes.tsx      # App routing (role-based)
+    │   │
+    │   ├── utils/
+    │   ├── App.tsx                # Root component
+    │   └── index.tsx              # Entry point
+    │
+    ├── .env                       # Environment variables
+    ├── package.json
+    ├── tsconfig.json
+    └── README.md
 
-### `npm test`
+️### ⚙️ Setup & Installation
+    * 1️⃣ Clone the repo
+        git clone https://github.com/your-username/frontend-insurance-claim-management-system.git
+        cd frontend-insurance-claim-management-system
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+        * 2️⃣ Install dependencies
+        npm install
 
-### `npm run build`
+        * 3️⃣ Configure environment variables
+        Create a .env file in the root:
+        VITE_API_BASE_URL=http://localhost:8001/api
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+        * 4️⃣ Start the development server
+        npm run dev
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 📌 Available Pages & Roles
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+    * Admin → Manage Users, Claims, Approvals
+    * Customer → View Policy, File Claim, Track Status
+    * Agent → Assist customers with claims
+    * Hospital / Garage → Process cashless claims
+    * TPA / Surveyor / Insurer → Approvals & Reports
+    * Helpdesk / Auditor / Nominee → Support & Review
 
-### `npm run eject`
+### 🔐 Authentication Flow
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+    * Login via backend API
+    * Store JWT/session in cookies (httpOnly)
+    * Role-based route protection using PrivateRoute.tsx
+    * Global auth state managed via AuthContext
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+🖼️ Screenshots
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+    * (Add screenshots from your /public or backend if available)
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### 🧑‍💻 Development Scripts
+       Command	        Description
+    npm run dev	    Start development server
+    npm run build	Build for production
+    npm run lint	Run ESLint checks
+    npm run preview	Preview production build
 
-## Learn More
+### 🤝 Contributing
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+    1. Fork the repo 🍴
+    2. Create a new branch (feature/role-management)
+    3. Commit your changes
+    4. Push to branch & open PR ✅
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+📜 License
+MIT License © 2025 By Hariom Verma
+
+### Story Points
+
+    Ah ✅ got it now — thanks for clarifying.
+    You are thinking as Product Owner of your ICMS SaaS.
+
+### Meaning:
+
+        Many hospitals will subscribe/buy your platform.
+        Each hospital should only see/manage its own patients, claims, bills, staff, not other hospitals.
+        But Admin (you/insurer) can see all hospitals.
+    That’s a multi-tenant SaaS problem → you need hospital-wise isolation.
+
+
+### 🏥 Multi-Hospital Access Workflow
+
+1. Admin (Global / SaaS Owner)
+    * Can onboard new hospitals (create tenant entries).
+    * Manages billing/subscription for hospitals.
+    * Sees all hospitals, all claims, all users.
+
+2. Hospital Role (Tenant-Level Admin)
+
+    When a hospital signs up:
+        They get their own Hospital Admin Dashboard.
+        Hospital Admin can:
+
+        * Add hospital staff (doctors, billing clerks, claim desk, etc.) → these staff users also belong to role = hospital but tagged with hospital_id.
+        * View only claims assigned to their hospital.
+        * Upload hospital bills, treatment docs.
+        * Manage patient cases.
+
+3. How Access is Restricted (Hospital-wise Isolation)
+
+    * Every hospital user is tied to a hospital_id.
+    * When they log in:
+
+    * All API requests are filtered by their hospital_id.
+    * Example:
+        SELECT * FROM claims WHERE hospital_id = :user.hospital_id;
+    * So Hospital A can never see Hospital B’s claims.
+
+4. Workflow Example
+
+    * Claim Case (Cashless in Hospital)
+    * Customer initiates claim (via agent/customer portal).
+    * Claim is linked to a hospital_id (selected during initiation).
+    * Hospital staff (role = hospital, with hospital_id) logs in.
+        They see only claims for their hospital.
+
+    * Hospital uploads bills, discharge summary.
+    * TPA verifies medical docs.
+    * Insurer approves/rejects.
+    * Payment is settled with that hospital only.
+
+5. Scaling Multi-Hospital SaaS
+
+    Two approaches:
+       1. Single DB with Tenant Key (recommended for MVP)
+            * One big database.
+            * Every record has a hospital_id.
+            * Access control filters data by hospital_id.
+            * Simpler, cheaper, easy to manage.
+
+        2. Separate DB per Hospital (enterprise level)
+
+            * Each hospital gets its own schema/DB.
+            * Very strong data isolation, but harder to maintain.
+            * Needed when hospitals demand complete data separation.
+
+### 📌 README.md Addition (Hospital Multi-Tenant Model)
+    * 🏥 Multi-Hospital Access
+
+        * The platform supports multi-tenant hospitals.
+            * Each hospital has its own Hospital Admin, who manages staff, patients, and claims.
+            * Hospital users are restricted to their own hospital’s data only (via hospital_id).
+            * Claims, bills, and documents are tied to hospital_id, ensuring strict isolation.
+            * Admin (SaaS Owner) has global access across all hospitals.
+
+Example:
+
+    * Hospital A can only see Patient Claims for Hospital A.
+    * Hospital B cannot access Hospital A’s claims.
+    * Admin sees all hospitals.
+
+⚡ This way, your ICMS SaaS works like a marketplace: many hospitals onboarded, each fully isolated.
+
+Would you like me to also extend this multi-tenant model to Garage, Surveyor, Service Provider (so they too are tenant-wise isolated, like hospitals)?

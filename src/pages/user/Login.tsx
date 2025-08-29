@@ -4,17 +4,18 @@ import { Button, Form } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import AuthLayout from "../components/layout/AuthLayout";
+import AuthLayout from "../../components/layout/AuthLayout";
 
 const Login = () => {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/user/login",
+        "http://localhost:8001/api/user/login",
         { email, password },
         { withCredentials: true }
       );

@@ -1,14 +1,13 @@
-import React, { JSX } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate } from "react-router-dom";
+import { ReactNode } from "react";
 
-const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  const token = localStorage.getItem('token');
+interface PrivateRouteProps {
+  children: ReactNode;
+}
 
-  if (!token) {
-    return <Navigate to="/" replace />;
-  }
-
-  return children;
+const PrivateRoute = ({ children }: PrivateRouteProps) => {
+  const isAuthenticated = localStorage.getItem("token"); // Example auth check
+  return isAuthenticated ? <>{children}</> : <Navigate to="/" replace />;
 };
 
 export default PrivateRoute;

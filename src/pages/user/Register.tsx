@@ -3,7 +3,7 @@ import axios from "axios";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import AuthLayout from "../components/layout/AuthLayout";
+import AuthLayout from "../../components/layout/AuthLayout";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ const Register = () => {
         return;
       }
 
-      await axios.post("http://localhost:8000/api/user/add", {
+      await axios.post("http://localhost:8001/api/user/add", {
         ...formData,
         role: "customer",
       });
