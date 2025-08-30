@@ -5,6 +5,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import AuthLayout from "../../components/layout/AuthLayout";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -26,7 +28,7 @@ const Register = () => {
         return;
       }
 
-      await axios.post("http://localhost:8000/api/user/add", {
+      await axios.post(`${API_BASE_URL}/user/add`, {
         ...formData,
         role: "customer",
       });

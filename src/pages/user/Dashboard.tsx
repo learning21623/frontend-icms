@@ -1,5 +1,4 @@
-// src/pages/Dashboard.tsx
-import { GridLegacy as Grid } from '@mui/material';
+// src/pages/UserDashboard.tsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -18,8 +17,12 @@ import {
   Paper,
   TablePagination,
 } from "@mui/material";
+import { GridLegacy as Grid } from "@mui/material";
 import { ArrowBack, Edit, Delete } from "@mui/icons-material";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL; // ✅ from .env
+
+// ------------------- Types -------------------
 type RoleOption =
   | "admin"
   | "customer"
@@ -46,6 +49,7 @@ type User = {
   };
 };
 
+// ------------------- Role Data -------------------
 const roleOptions: RoleOption[] = [
   "admin",
   "customer",
@@ -61,10 +65,27 @@ const roleOptions: RoleOption[] = [
   "helpdesk",
 ];
 
+// Map frontend role names → backend role IDs
+const roleMapping: Record<RoleOption, number> = {
+  admin: 1,
+  customer: 2,
+  agent: 3,
+  tpa: 4,
+  insurer: 5,
+  hospital: 6,
+  garage: 7,
+  surveyor: 8,
+  "service-provider": 9,
+  auditor: 10,
+  nominee: 11,
+  helpdesk: 12,
+};
+
+// ------------------- Component -------------------
 const Dashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [page, setPage] = useState(0); // MUI uses 0-based index
+  const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<any>({
@@ -73,17 +94,17 @@ const Dashboard: React.FC = () => {
     email: "",
     mobile: "",
     password: "",
-    role: "customer",
+    role: "customer", // ✅ role name for dropdown
   });
   const [editUserId, setEditUserId] = useState<number | null>(null);
 
-  const rowsPerPage = 10; // fixed
+  const rowsPerPage = 10;
 
-  // Fetch Users
+  // ------------------- API Calls -------------------
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/user/list", {
-        params: { page: page + 1, limit: rowsPerPage }, // backend expects 1-based
+      const response = await axios.get(`${API_BASE_URL}/user/list`, {
+        params: { page: page + 1, limit: rowsPerPage },
         withCredentials: true,
       });
       setUsers(response.data?.data?.users || []);
@@ -95,39 +116,46 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [page]); // refetch when page changes
+  }, [page]);
 
+  // ------------------- Form Handlers -------------------
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSave = async () => {
     try {
+      const payload: any = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        mobile: formData.mobile,
+        roleId: roleMapping[formData.role as RoleOption], // ✅ send roleId
+      };
+
+      if (!editUserId && formData.password) {
+        payload.password = formData.password;
+      }
+
       if (editUserId) {
         await axios.put(
-          `http://localhost:8000/api/user/update?userId=${editUserId}`,
-          formData,
+          `${API_BASE_URL}/user/update?userId=${editUserId}`,
+          payload,
           { withCredentials: true }
         );
         alert("User updated successfully!");
       } else {
-        await axios.post("http://localhost:8000/api/user/add", formData, {
+        await axios.post(`${API_BASE_URL}/user/add`, payload, {
           withCredentials: true,
         });
         alert("User created successfully!");
       }
+
       setShowForm(false);
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        mobile: "",
-        password: "",
-        role: "customer",
-      });
-      setEditUserId(null);
+      resetForm();
       fetchUsers();
     } catch (error) {
+      console.error(error);
       alert("Failed to save user");
     }
   };
@@ -148,16 +176,28 @@ const Dashboard: React.FC = () => {
   const handleDelete = async (userId: number) => {
     if (!window.confirm("Delete this user?")) return;
     try {
-      await axios.delete(
-        `http://localhost:8000/api/user/delete?userId=${userId}`,
-        { withCredentials: true }
-      );
+      await axios.delete(`${API_BASE_URL}/user/delete?userId=${userId}`, {
+        withCredentials: true,
+      });
       fetchUsers();
     } catch {
       alert("Failed to delete user");
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      mobile: "",
+      password: "",
+      role: "customer",
+    });
+    setEditUserId(null);
+  };
+
+  // ------------------- Search Filter -------------------
   const filteredUsers = users.filter(
     (u) =>
       `${u.firstName} ${u.lastName}`
@@ -167,15 +207,15 @@ const Dashboard: React.FC = () => {
       u.mobile.includes(search)
   );
 
+  // ------------------- Render -------------------
   return (
     <Box p={4}>
       <Typography variant="h5" gutterBottom>
-        User Management
+        User Management Dashboard
       </Typography>
 
       {showForm ? (
         <Paper sx={{ p: 4, position: "relative" }}>
-          {/* Back Button */}
           <IconButton
             onClick={() => {
               setShowForm(false);
@@ -191,7 +231,6 @@ const Dashboard: React.FC = () => {
           </Typography>
 
           <Grid container spacing={2}>
-            {/* First Name */}
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -201,8 +240,6 @@ const Dashboard: React.FC = () => {
                 onChange={handleChange}
               />
             </Grid>
-
-            {/* Last Name */}
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -212,8 +249,6 @@ const Dashboard: React.FC = () => {
                 onChange={handleChange}
               />
             </Grid>
-
-            {/* Email */}
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -224,8 +259,6 @@ const Dashboard: React.FC = () => {
                 onChange={handleChange}
               />
             </Grid>
-
-            {/* Mobile */}
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
@@ -235,8 +268,6 @@ const Dashboard: React.FC = () => {
                 onChange={handleChange}
               />
             </Grid>
-
-            {/* Password (only when adding new user) */}
             {!editUserId && (
               <Grid item xs={12} md={6}>
                 <TextField
@@ -249,8 +280,6 @@ const Dashboard: React.FC = () => {
                 />
               </Grid>
             )}
-
-            {/* Role */}
             <Grid item xs={12} md={6}>
               <Select
                 fullWidth
@@ -267,7 +296,6 @@ const Dashboard: React.FC = () => {
             </Grid>
           </Grid>
 
-
           <Box display="flex" justifyContent="flex-end" mt={3}>
             <Button variant="contained" color="primary" onClick={handleSave}>
               Save
@@ -276,36 +304,30 @@ const Dashboard: React.FC = () => {
         </Paper>
       ) : (
         <>
-          {/* Search + Add Button */}
-          <Box display="flex" justifyContent="space-between" mb={2}>
-            <TextField
-              label="Search"
-              variant="outlined"
-              size="small"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => {
-                setFormData({
-                  firstName: "",
-                  lastName: "",
-                  email: "",
-                  mobile: "",
-                  password: "",
-                  role: "customer",
-                });
-                setEditUserId(null);
-                setShowForm(true);
-              }}
-            >
-              + Add User
-            </Button>
-          </Box>
+          {/* Search + Add */}
+          <Paper sx={{ p: 2, mb: 3 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <TextField
+                label="Search User"
+                variant="outlined"
+                size="small"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => {
+                  resetForm();
+                  setShowForm(true);
+                }}
+              >
+                + Add User
+              </Button>
+            </Box>
+          </Paper>
 
-          {/* Table */}
+          {/* Users Table */}
           <Paper>
             <Table>
               <TableHead>
@@ -314,7 +336,7 @@ const Dashboard: React.FC = () => {
                   <TableCell>Email</TableCell>
                   <TableCell>Mobile</TableCell>
                   <TableCell>Role</TableCell>
-                  <TableCell>Actions</TableCell>
+                  <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -326,7 +348,7 @@ const Dashboard: React.FC = () => {
                     <TableCell>{u.email}</TableCell>
                     <TableCell>{u.mobile}</TableCell>
                     <TableCell>{u.role?.name}</TableCell>
-                    <TableCell>
+                    <TableCell align="center">
                       <IconButton onClick={() => handleEdit(u)}>
                         <Edit />
                       </IconButton>
@@ -342,14 +364,13 @@ const Dashboard: React.FC = () => {
               </TableBody>
             </Table>
 
-            {/* Pagination */}
             <TablePagination
               component="div"
               count={totalCount}
               page={page}
               onPageChange={(e, newPage) => setPage(newPage)}
               rowsPerPage={rowsPerPage}
-              rowsPerPageOptions={[]} // fixed 10
+              rowsPerPageOptions={[]}
             />
           </Paper>
         </>

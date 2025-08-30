@@ -14,15 +14,16 @@ const Sidebar = () => {
           </Link>
         </li>
         <li>
-          <Link to="/claims" className="nav-link text-white">
-            Claims
-          </Link>
-        </li>
-        <li>
           <Link to="/policies" className="nav-link text-white">
             Policies
           </Link>
         </li>
+        <li>
+          <Link to="/claims" className="nav-link text-white">
+            Claims
+          </Link>
+        </li>
+
         <li>
           <Link to="/users" className="nav-link text-white">
             Users

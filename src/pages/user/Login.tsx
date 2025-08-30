@@ -6,6 +6,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AuthLayout from "../../components/layout/AuthLayout";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL; // ✅ load from .env
+
 const Login = () => {
   const navigate = useNavigate();
 
@@ -15,7 +17,7 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/user/login",
+        `${API_BASE_URL}/user/login`,
         { email, password },
         { withCredentials: true }
       );
