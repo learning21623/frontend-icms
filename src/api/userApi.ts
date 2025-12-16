@@ -9,6 +9,10 @@ export const loginUser = (data: any) => axios.post('/user/login', data);
 export const getUserList = (page = 1, limit = 10) =>
   axios.get(`/user/list?page=${page}&limit=${limit}`);
 
+export const getHospitalUserList = () => {
+  return axios.get("/user/hospital-users");
+};
+
 export const getUserDetail = (userId: number) => {
   return axios.get(`/user/detail?userId=${userId}`);
 };

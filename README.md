@@ -25,33 +25,48 @@ It is built with React + TypeScript + TailwindCSS and provides role-based dashbo
     frontend-insurance-claim-management-system/
     ├── public/                # Static assets
     ├── src/
-    │   ├── api/
-    │   │   ├── axiosInstance.ts   # Axios config
-    │   │   └── userApi.ts         # User-related API calls
+    ├── api/
+    │   ├── axiosInstance.ts
+    │   ├── auth.api.ts
+    │   ├── hospital.api.ts        # SuperAdmin only
+    │   ├── doctor.api.ts          # Hospital scoped
+    │   └── staff.api.ts           # Hospital scoped
+    │
+    ├── auth/
+    │   ├── AuthContext.tsx
+    │   ├── useAuth.ts
+    │   ├── RequireAuth.tsx
+    │   └── RoleGuard.tsx
+    │
+    ├── layouts/
+    │   ├── AuthLayout.tsx
+    │   ├── DashboardLayout.tsx
+    │   ├── Sidebar.tsx
+    │   └── Topbar.tsx
+    │
+    ├── pages/
+    │   ├── auth/
+    │   │   └── Login.tsx
     │   │
-    │   ├── components/
-    │   │   ├── layout/
-    │   │   │   ├── AuthLayout.tsx # Auth page wrapper
-    │   │   │   ├── Layout.tsx     # Main layout
-    │   │   │   ├── PrivateRoute.tsx # Protected routes
-    │   │   │   ├── Sidebar.tsx    # Sidebar menu
-    │   │   │   └── Topbar.tsx     # Top navigation bar
+    │   ├── superadmin/
+    │   │   └── HospitalList.tsx
     │   │
-    │   ├── context/
-    │   │   └── AuthContext.tsx    # Authentication context
+    │   ├── hospital/
+    │   │   ├── Dashboard.tsx
+    │   │   ├── DoctorList.tsx
+    │   │   └── AddDoctor.tsx
     │   │
-    │   ├── hooks/
-    │   │   └── useAuth.ts         # Custom auth hook
-    │   │
-    │   ├── pages/
-    │   │   └── user/
-    │   │       └── Dashboard.tsx  # User management page
-    │   │
-    │   ├── routes/
-    │   │   └── AppRoutes.tsx      # App routing (role-based)
-    │   │
-    │   ├── utils/
-    │   ├── App.tsx                # Root component
+    │   └── common/
+    │       └── Unauthorized.tsx
+    │
+    ├── routes/
+    │   └── AppRoutes.tsx
+    │
+    ├── utils/
+    │   ├── token.ts
+    │   └── permissions.ts
+    │
+    └── App.tsx                # Root component
     │   └── index.tsx              # Entry point
     │
     ├── .env                       # Environment variables
