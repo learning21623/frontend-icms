@@ -4,5 +4,5 @@ export const POLICY_TYPES = [
   { label: "Motor", value: "motor", prefix: "POM" },
   { label: "Property", value: "property", prefix: "POP" },
   { label: "Crop", value: "crop", prefix: "POC" },
-  { label: "Travel", value: "travel", prefix: "POT" },
+  { label: "Travel", value: "travel", prefix: "POT" }, 
 ];
