@@ -7,13 +7,8 @@ import Register from "../pages/user/Register";
 import Dashboard from "../pages/user/Dashboard";
 import HospitalAdminList from "../pages/hospital/HospitalAdminList"; //
 
-// Policy Pages
-import PolicyDashboard from "../pages/policy/PolicyDashboard";
-import CreatePolicy from "../pages/policy/CreatePolicy";
-import EditPolicy from "../pages/policy/EditPolicy";
-
 // Layout & Auth
-import PrivateRoute from "../components/PrivateRoute";
+import { ProtectedRoute } from "../auth/ProtectedRoute"; // Keep this one
 import Layout from "../components/layout/Layout";
 import AuthLayout from "../components/layout/AuthLayout";
 
@@ -28,11 +23,11 @@ const AppRoutes = () => {
       <Route
         path="/dashboard"
         element={
-          <PrivateRoute>
+          <ProtectedRoute>
             <Layout>
               <Dashboard />
             </Layout>
-          </PrivateRoute>
+          </ProtectedRoute>
         }
       />
 
@@ -40,47 +35,14 @@ const AppRoutes = () => {
       <Route
         path="/users"
         element={
-          <PrivateRoute>
+          <ProtectedRoute>
             <Layout>
               <HospitalAdminList />
             </Layout>
-          </PrivateRoute>
+          </ProtectedRoute>
         }
       />
 
-      {/* Policies */}
-      <Route
-        path="/policies"
-        element={
-          <PrivateRoute>
-            <Layout>
-              <PolicyDashboard />
-            </Layout>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/policies/create"
-        element={
-          <PrivateRoute>
-            <Layout>
-              <CreatePolicy />
-            </Layout>
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/policies/edit/:id"
-        element={
-          <PrivateRoute>
-            <Layout>
-              <EditPolicy />
-            </Layout>
-          </PrivateRoute>
-        }
-      />
     </Routes>
   );
 };
