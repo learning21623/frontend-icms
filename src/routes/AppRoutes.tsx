@@ -1,86 +1,49 @@
 // src/routes/AppRoutes.tsx
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-//User Management
+import { Routes, Route } from "react-router-dom";
+
+// User & Admin Pages
 import Login from "../pages/user/Login";
 import Register from "../pages/user/Register";
-// import CreateUser from "../pages/user/CreateUser";
 import Dashboard from "../pages/user/Dashboard";
-import PrivateRoute from "../components/PrivateRoute";
+import HospitalAdminList from "../pages/hospital/HospitalAdminList"; //
+
+// Layout & Auth
+import { ProtectedRoute } from "../auth/ProtectedRoute"; // Keep this one
 import Layout from "../components/layout/Layout";
 import AuthLayout from "../components/layout/AuthLayout";
 
-// Policy Management
-import PolicyDashboard from "../pages/policy/PolicyDashboard";
-import CreatePolicy from "../pages/policy/CreatePolicy";
-import EditPolicy from "../pages/policy/EditPolicy";
-
 const AppRoutes = () => {
   return (
-    <Router>
-      <Routes>
-        {/* Public Auth Pages */}
-        <Route
-          path="/"
-          element={
-            <AuthLayout>
-              <Login />
-            </AuthLayout>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <AuthLayout>
-              <Register />
-            </AuthLayout>
-          }
-        />
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<AuthLayout><Login /></AuthLayout>} />
+      <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
 
-        {/* Protected Dashboard with Sidebar + Topbar */}
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <Layout>
-                <Dashboard />
-              </Layout>
-            </PrivateRoute>
-          }
-        />
-        {/* Policy Management */}
-        <Route
-          path="/policies"
-          element={
-            <PrivateRoute>
-              <Layout>
-                <PolicyDashboard />
-              </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/policies/create"
-          element={
-            <PrivateRoute>
-              <Layout>
-                <CreatePolicy />
-              </Layout>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/policies/edit/:id"
-          element={
-            <PrivateRoute>
-              <Layout>
-                <EditPolicy />
-              </Layout>
-            </PrivateRoute>
-          }
-        />
+      {/* Protected Routes - All follow the same pattern */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
 
-      </Routes>
-    </Router>
+      {/* FIX: Properly formatted Hospital/Admin route */}
+      <Route
+        path="/users"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <HospitalAdminList />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+    </Routes>
   );
 };
 
