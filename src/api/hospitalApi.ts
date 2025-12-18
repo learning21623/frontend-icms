@@ -7,11 +7,13 @@ export const addHospital = (data: any) =>
 export const getHospitalList = (page = 1, limit = 10) =>
   axios.get(`/hospital/list?page=${page}&limit=${limit}`);
 
-export const getHospitalDetail = (hospitalId: number) =>
-  axios.get(`/hospital/detail?hospitalId=${hospitalId}`);
+// Fixed to use ?id= to match your backend route
+export const getHospitalDetail = (id: number) =>
+  axios.get(`/hospital/detail?id=${id}`);
 
-export const updateHospital = (hospitalId: number, body: any) =>
-  axios.put(`/hospital/update?hospitalId=${hospitalId}`, body);
+// Fixed to use ?id= to match your backend route
+export const updateHospital = (id: number, body: any) =>
+  axios.put(`/hospital/update?id=${id}`, body);
 
-export const deleteHospital = (hospitalId: number) =>
-  axios.delete(`/hospital/delete?hospitalId=${hospitalId}`);
+export const deleteHospital = (id: number) =>
+  axios.delete(`/hospital/delete?id=${id}`);

@@ -1,14 +1,17 @@
 // src/auth/ProtectedRoute.tsx
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../context/AuthContext"; // 👈 CHANGE THIS from ../hooks/useAuth
 
 export const ProtectedRoute = ({ children, roles }: any) => {
-  const auth = useAuth();
-  const token = auth.token;
-  const user = (auth as any).user;
+  const { user, isAuth } = useAuth(); // 👈 Use the values from AuthContext
 
-  if (!token) return <Navigate to="/login" />;
-  if (roles && (!user || !roles.includes(user.role))) return <Navigate to="/403" />;
+  if (!isAuth) {
+    return <Navigate to="/" />; // Redirect to Login if not authenticated
+  }
+
+  if (roles && (!user || !roles.includes(user.role))) {
+    return <Navigate to="/403" />;
+  }
 
   return children;
 };

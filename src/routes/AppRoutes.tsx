@@ -5,12 +5,16 @@ import { Routes, Route } from "react-router-dom";
 import Login from "../pages/user/Login";
 import Register from "../pages/user/Register";
 import Dashboard from "../pages/user/Dashboard";
-import HospitalAdminList from "../pages/hospital/HospitalAdminList"; //
+import AddHospital from "../pages/hospital/AddHospital";
+import HospitalAdminList from "../pages/hospital/HospitalAdminList";
+import HospitalDetail from "../pages/hospital/HospitalDetail";
+import HospitalEdit from "../pages/hospital/HospitalEdit";
 
 // Layout & Auth
 import { ProtectedRoute } from "../auth/ProtectedRoute"; // Keep this one
 import Layout from "../components/layout/Layout";
 import AuthLayout from "../components/layout/AuthLayout";
+
 
 const AppRoutes = () => {
   return (
@@ -43,6 +47,36 @@ const AppRoutes = () => {
         }
       />
 
+      <Route
+        path="/hospital/add"
+        element={
+          <ProtectedRoute roles={["superAdmin"]}>
+            <Layout>
+              <AddHospital />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/hospital/detail/:id"
+        element={
+          <ProtectedRoute roles={["superAdmin"]}>
+            <Layout>
+              <HospitalDetail />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/hospital/edit/:id"
+        element={
+          <ProtectedRoute roles={["superAdmin"]}>
+            <Layout>
+              <HospitalEdit />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };

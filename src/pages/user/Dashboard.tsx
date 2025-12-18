@@ -1,4 +1,3 @@
-// src/pages/UserDashboard.tsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -16,26 +15,24 @@ import {
   Typography,
   Paper,
   TablePagination,
+  Stack,
+  Chip,
+  InputAdornment,
 } from "@mui/material";
 import { GridLegacy as Grid } from "@mui/material";
-import { ArrowBack, Edit, Delete } from "@mui/icons-material";
+import {
+  ArrowBack,
+  Edit,
+  Delete,
+  MailOutline,
+  PhoneIphone,
+  Search,
+} from "@mui/icons-material";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL; // ✅ from .env
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // ------------------- Types -------------------
-type RoleOption =
-  | "admin"
-  | "customer"
-  | "agent"
-  | "tpa"
-  | "insurer"
-  | "hospital"
-  | "garage"
-  | "surveyor"
-  | "service-provider"
-  | "auditor"
-  | "nominee"
-  | "helpdesk";
+type RoleOption = "superAdmin" | "admin" | "doctor" | "staff" | string;
 
 type User = {
   id: number;
@@ -49,43 +46,17 @@ type User = {
   };
 };
 
-// ------------------- Role Data -------------------
-const roleOptions: RoleOption[] = [
-  "admin",
-  "customer",
-  "agent",
-  "tpa",
-  "insurer",
-  "hospital",
-  "garage",
-  "surveyor",
-  "service-provider",
-  "auditor",
-  "nominee",
-  "helpdesk",
-];
-
-// Map frontend role names → backend role IDs
-const roleMapping: Record<RoleOption, number> = {
-  admin: 1,
-  customer: 2,
-  agent: 3,
-  tpa: 4,
-  insurer: 5,
-  hospital: 6,
-  garage: 7,
-  surveyor: 8,
-  "service-provider": 9,
-  auditor: 10,
-  nominee: 11,
-  helpdesk: 12,
+const roleMapping: Record<string, number> = {
+  superAdmin: 1,
+  admin: 2,
+  doctor: 3,
+  staff: 4,
 };
 
-// ------------------- Component -------------------
 const Dashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(0); 
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<any>({
@@ -94,7 +65,7 @@ const Dashboard: React.FC = () => {
     email: "",
     mobile: "",
     password: "",
-    role: "customer", // ✅ role name for dropdown
+    role: "admin",
   });
   const [editUserId, setEditUserId] = useState<number | null>(null);
 
@@ -107,8 +78,9 @@ const Dashboard: React.FC = () => {
         params: { page: page + 1, limit: rowsPerPage },
         withCredentials: true,
       });
+
       setUsers(response.data?.data?.users || []);
-      setTotalCount(response.data?.data?.count || 0);
+      setTotalCount(response.data?.data?.total || 0);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
@@ -118,7 +90,7 @@ const Dashboard: React.FC = () => {
     fetchUsers();
   }, [page]);
 
-  // ------------------- Form Handlers -------------------
+  // ------------------- Handlers -------------------
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -130,24 +102,16 @@ const Dashboard: React.FC = () => {
         lastName: formData.lastName,
         email: formData.email,
         mobile: formData.mobile,
-        roleId: roleMapping[formData.role as RoleOption], // ✅ send roleId
+        roleId: roleMapping[formData.role],
       };
 
-      if (!editUserId && formData.password) {
-        payload.password = formData.password;
-      }
+      if (!editUserId && formData.password) payload.password = formData.password;
 
       if (editUserId) {
-        await axios.put(
-          `${API_BASE_URL}/user/update?userId=${editUserId}`,
-          payload,
-          { withCredentials: true }
-        );
+        await axios.put(`${API_BASE_URL}/user/update?userId=${editUserId}`, payload, { withCredentials: true });
         alert("User updated successfully!");
       } else {
-        await axios.post(`${API_BASE_URL}/user/add`, payload, {
-          withCredentials: true,
-        });
+        await axios.post(`${API_BASE_URL}/user/add`, payload, { withCredentials: true });
         alert("User created successfully!");
       }
 
@@ -167,7 +131,7 @@ const Dashboard: React.FC = () => {
       email: user.email,
       mobile: user.mobile,
       password: "",
-      role: user.role?.name || "customer",
+      role: user.role?.name || "admin",
     });
     setEditUserId(user.id);
     setShowForm(true);
@@ -176,9 +140,7 @@ const Dashboard: React.FC = () => {
   const handleDelete = async (userId: number) => {
     if (!window.confirm("Delete this user?")) return;
     try {
-      await axios.delete(`${API_BASE_URL}/user/delete?userId=${userId}`, {
-        withCredentials: true,
-      });
+      await axios.delete(`${API_BASE_URL}/user/delete?userId=${userId}`, { withCredentials: true });
       fetchUsers();
     } catch {
       alert("Failed to delete user");
@@ -186,189 +148,133 @@ const Dashboard: React.FC = () => {
   };
 
   const resetForm = () => {
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      mobile: "",
-      password: "",
-      role: "customer",
-    });
+    setFormData({ firstName: "", lastName: "", email: "", mobile: "", password: "", role: "admin" });
     setEditUserId(null);
   };
 
-  // ------------------- Search Filter -------------------
-  const filteredUsers = users.filter(
-    (u) =>
-      `${u.firstName} ${u.lastName}`
-        .toLowerCase()
-        .includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()) ||
-      u.mobile.includes(search)
-  );
+  // ------------------- Filter Logic -------------------
+  const filteredUsers = users.filter((u) => {
+    const term = search.toLowerCase();
+    return (
+      `${u.firstName} ${u.lastName}`.toLowerCase().includes(term) ||
+      u.email.toLowerCase().includes(term) ||
+      u.mobile.includes(term)
+    );
+  });
 
-  // ------------------- Render -------------------
   return (
     <Box p={4}>
-      <Typography variant="h5" gutterBottom>
-        User Management Dashboard
-      </Typography>
+      {/* Header Section */}
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+        <Box>
+          <Typography variant="h5" fontWeight="bold">User Management</Typography>
+          <Typography variant="body2" color="textSecondary">Manage system accounts and roles</Typography>
+        </Box>
+        {!showForm && (
+          <Button variant="contained" color="primary" sx={{ borderRadius: "8px" }} onClick={() => { resetForm(); setShowForm(true); }}>
+            + Add New User
+          </Button>
+        )}
+      </Stack>
 
       {showForm ? (
-        <Paper sx={{ p: 4, position: "relative" }}>
-          <IconButton
-            onClick={() => {
-              setShowForm(false);
-              setEditUserId(null);
-            }}
-            sx={{ position: "absolute", top: 16, left: 16 }}
-          >
-            <ArrowBack />
-          </IconButton>
-
-          <Typography variant="h6" textAlign="center" mb={3}>
-            {editUserId ? "Edit User" : "Add New User"}
-          </Typography>
+        /* Form View */
+        <Paper sx={{ p: 4, borderRadius: "12px" }}>
+          <Stack direction="row" spacing={1} alignItems="center" mb={3}>
+            <IconButton onClick={() => setShowForm(false)}><ArrowBack /></IconButton>
+            <Typography variant="h6">{editUserId ? "Edit User Details" : "Register New User"}</Typography>
+          </Stack>
 
           <Grid container spacing={2}>
+            <Grid item xs={12} md={6}><TextField fullWidth label="First Name" name="firstName" value={formData.firstName} onChange={handleChange} /></Grid>
+            <Grid item xs={12} md={6}><TextField fullWidth label="Last Name" name="lastName" value={formData.lastName} onChange={handleChange} /></Grid>
+            <Grid item xs={12} md={6}><TextField fullWidth label="Email" name="email" value={formData.email} onChange={handleChange} /></Grid>
+            <Grid item xs={12} md={6}><TextField fullWidth label="Mobile" name="mobile" value={formData.mobile} onChange={handleChange} /></Grid>
+            {!editUserId && <Grid item xs={12} md={6}><TextField fullWidth type="password" label="Password" name="password" value={formData.password} onChange={handleChange} /></Grid>}
             <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="First Name"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Last Name"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Mobile"
-                name="mobile"
-                value={formData.mobile}
-                onChange={handleChange}
-              />
-            </Grid>
-            {!editUserId && (
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Password"
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-              </Grid>
-            )}
-            <Grid item xs={12} md={6}>
-              <Select
-                fullWidth
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-              >
-                {roleOptions.map((role) => (
-                  <MenuItem key={role} value={role}>
-                    {role}
-                  </MenuItem>
-                ))}
+              <Select fullWidth name="role" value={formData.role} onChange={handleChange}>
+                {Object.keys(roleMapping).map((r) => <MenuItem key={r} value={r}>{r.toUpperCase()}</MenuItem>)}
               </Select>
             </Grid>
           </Grid>
-
           <Box display="flex" justifyContent="flex-end" mt={3}>
-            <Button variant="contained" color="primary" onClick={handleSave}>
-              Save
-            </Button>
+            <Button variant="contained" size="large" onClick={handleSave}>Save User</Button>
           </Box>
         </Paper>
       ) : (
+        /* List View */
         <>
-          {/* Search + Add */}
-          <Paper sx={{ p: 2, mb: 3 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <TextField
-                label="Search User"
-                variant="outlined"
-                size="small"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => {
-                  resetForm();
-                  setShowForm(true);
-                }}
-              >
-                + Add User
-              </Button>
-            </Box>
+          <Paper elevation={0} sx={{ p: 2, mb: 3, borderRadius: "12px", border: "1px solid #eef2f6" }}>
+            <TextField
+              fullWidth
+              placeholder="Search by name, email, or mobile..."
+              size="small"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search fontSize="small" />
+                  </InputAdornment>
+                ),
+              }}
+            />
           </Paper>
 
-          {/* Users Table */}
-          <Paper>
+          <Paper elevation={0} sx={{ border: "1px solid #e0e0e0", borderRadius: "12px", overflow: "hidden" }}>
             <Table>
-              <TableHead>
+              <TableHead sx={{ bgcolor: "#f8f9fa" }}>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Mobile</TableCell>
-                  <TableCell>Role</TableCell>
-                  <TableCell align="center">Actions</TableCell>
+                  <TableCell>USER DETAILS</TableCell>
+                  <TableCell>CONTACT</TableCell>
+                  <TableCell>ROLE</TableCell>
+                  <TableCell align="right">ACTIONS</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredUsers.map((u) => (
-                  <TableRow key={u.id}>
+                  <TableRow key={u.id} hover>
                     <TableCell>
-                      {u.firstName} {u.lastName}
+                      <Typography variant="subtitle2">{u.firstName} {u.lastName}</Typography>
+                      <Typography variant="caption" color="textSecondary">ID: #{u.id}</Typography>
                     </TableCell>
-                    <TableCell>{u.email}</TableCell>
-                    <TableCell>{u.mobile}</TableCell>
-                    <TableCell>{u.role?.name}</TableCell>
-                    <TableCell align="center">
-                      <IconButton onClick={() => handleEdit(u)}>
-                        <Edit />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={() => handleDelete(u.id)}
-                      >
-                        <Delete />
-                      </IconButton>
+                    <TableCell>
+                      <Stack spacing={0.5}>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <MailOutline sx={{ fontSize: 14 }} /> <Typography variant="body2">{u.email}</Typography>
+                        </Stack>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <PhoneIphone sx={{ fontSize: 14 }} /> <Typography variant="body2">{u.mobile}</Typography>
+                        </Stack>
+                      </Stack>
+                    </TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={u.role?.name} 
+                        size="small" 
+                        variant="outlined" 
+                        sx={{ 
+                          fontWeight: 600, 
+                          fontSize: '11px',
+                          backgroundColor: u.role?.name === 'admin' ? '#e3f2fd' : '#f5f5f5',
+                          color: u.role?.name === 'admin' ? '#1976d2' : '#616161',
+                          border: 'none'
+                        }} 
+                      />
+                    </TableCell>
+                    <TableCell align="right">
+                      <IconButton size="small" color="primary" onClick={() => handleEdit(u)}><Edit fontSize="small" /></IconButton>
+                      <IconButton size="small" color="error" onClick={() => handleDelete(u.id)}><Delete fontSize="small" /></IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-
             <TablePagination
               component="div"
               count={totalCount}
               page={page}
-              onPageChange={(e, newPage) => setPage(newPage)}
+              onPageChange={(_, newPage) => setPage(newPage)}
               rowsPerPage={rowsPerPage}
               rowsPerPageOptions={[]}
             />
