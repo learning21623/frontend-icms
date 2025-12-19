@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getHospitalUserList } from "../../api/userApi";
-import { Plus, Building2, Mail, Phone, Search, X, Download, User } from "lucide-react";
+import { Plus, Building2, Mail, Phone, Search, X, Download } from "lucide-react";
 import * as XLSX from "xlsx";
 
 const HospitalAdminList = () => {
