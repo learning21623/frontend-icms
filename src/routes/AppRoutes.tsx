@@ -10,6 +10,7 @@ import HospitalAdminList from "../pages/hospital/HospitalAdminList";
 import HospitalDetail from "../pages/hospital/HospitalDetail";
 import HospitalEdit from "../pages/hospital/HospitalEdit";
 
+import DoctorList from "../pages/doctor/DoctorList";
 // Layout & Auth
 import { ProtectedRoute } from "../auth/ProtectedRoute"; // Keep this one
 import Layout from "../components/layout/Layout";
@@ -27,7 +28,7 @@ const AppRoutes = () => {
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={["superAdmin"]}>
             <Layout>
               <Dashboard />
             </Layout>
@@ -77,6 +78,17 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/doctor"
+        element={
+          <ProtectedRoute roles={["admin"]}>
+            <Layout>
+              <DoctorList />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
     </Routes>
   );
 };
