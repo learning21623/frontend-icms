@@ -1,11 +1,13 @@
 // src/pages/doctor/DoctorList.tsx
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Table, TableBody, TableRow, TableCell, TableHead, Paper, TableContainer } from "@mui/material";
 import { getDoctorList } from "../../api/doctorApi";
 import DoctorModal from "./DoctorModal";
 
 const DoctorList = () => {
   const [doctors, setDoctors] = useState([]);
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const loadDoctors = async () => {
@@ -21,9 +23,14 @@ const DoctorList = () => {
 
   return (
     <TableContainer component={Paper} sx={{ p: 2 }}>
-      <div className="d-flex justify-content-between mb-3">
-        <h3>Doctor Management</h3>
-        <Button variant="contained" color="primary" onClick={() => setOpen(true)}>Add Doctor</Button>
+      <div className="container">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h2>Doctors</h2>
+          <Button variant="contained" onClick={() => navigate("/doctor/add")}>
+            + Add Doctor
+          </Button>
+        </div>
+        {/* Table goes here */}
       </div>
 
       <Table>

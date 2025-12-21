@@ -10,6 +10,7 @@ import HospitalAdminList from "../pages/hospital/HospitalAdminList";
 import HospitalDetail from "../pages/hospital/HospitalDetail";
 import HospitalEdit from "../pages/hospital/HospitalEdit";
 
+import AddDoctor from "../pages/doctor/AddDoctor";
 import DoctorList from "../pages/doctor/DoctorList";
 // Layout & Auth
 import { ProtectedRoute } from "../auth/ProtectedRoute"; // Keep this one
@@ -74,6 +75,16 @@ const AppRoutes = () => {
           <ProtectedRoute roles={["superAdmin"]}>
             <Layout>
               <HospitalEdit />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/add"
+        element={
+          <ProtectedRoute roles={["admin"]}>
+            <Layout>
+              <AddDoctor />
             </Layout>
           </ProtectedRoute>
         }
