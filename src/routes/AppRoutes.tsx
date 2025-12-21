@@ -16,6 +16,7 @@ import DoctorList from "../pages/doctor/DoctorList";
 import { ProtectedRoute } from "../auth/ProtectedRoute"; // Keep this one
 import Layout from "../components/layout/Layout";
 import AuthLayout from "../components/layout/AuthLayout";
+import EditDoctor from "../pages/doctor/EditDoctor";
 
 
 const AppRoutes = () => {
@@ -95,6 +96,16 @@ const AppRoutes = () => {
           <ProtectedRoute roles={["admin"]}>
             <Layout>
               <DoctorList />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/edit/:id"
+        element={
+          <ProtectedRoute roles={["admin"]}>
+            <Layout>
+              <EditDoctor />
             </Layout>
           </ProtectedRoute>
         }

@@ -17,10 +17,10 @@ export const getUserDetail = (userId: number) => {
   return axios.get(`/user/detail?userId=${userId}`);
 };
 
-export const updateUser = (userId: number, body: any) => {
-  return axios.put(`/user/update?userId=${userId}`, body);
+export const updateUser = (id: number, body: any) => {
+  return axios.put(`/user/update?id=${id}`, body);
 };
 
-export const deleteUser = (userId: number) => {
-  return axios.delete(`/user/delete?userId=${userId}`);
+export const deleteUser = (id: number) => {
+  return axios.delete(`/user/delete?id=${id}`);
 };
