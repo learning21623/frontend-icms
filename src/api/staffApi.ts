@@ -1,17 +1,19 @@
 // src/api/staffApi.ts
 import axios from "./axiosInstance";
 
-export const addStaff = (data: any) =>
+// ✅ Add staff entry
+export const addStaff = (data: { userId: number; hospitalId: number | undefined; role: string }) =>
   axios.post("/staff/add", data);
 
 export const getStaffList = (page = 1, limit = 10) =>
   axios.get(`/staff/list?page=${page}&limit=${limit}`);
 
-export const getStaffDetail = (staffId: number) =>
-  axios.get(`/staff/detail?staffId=${staffId}`);
+// ✅ Corrected to use ?id= to match backend pattern
+export const getStaffDetail = (id: number) =>
+  axios.get(`/staff/detail?id=${id}`);
 
-export const updateStaff = (staffId: number, body: any) =>
-  axios.put(`/staff/update?staffId=${staffId}`, body);
+export const updateStaff = (id: number, body: any) =>
+  axios.put(`/staff/update?id=${id}`, body);
 
-export const deleteStaff = (staffId: number) =>
-  axios.delete(`/staff/delete?staffId=${staffId}`);
+export const deleteStaff = (id: number) =>
+  axios.delete(`/staff/delete?id=${id}`);
