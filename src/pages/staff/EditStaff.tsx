@@ -7,29 +7,29 @@ import { updateUser } from "../../api/userApi";
 import { toast, ToastContainer } from "react-toastify";
 
 const EditStaff = () => {
-  const { id } = useParams(); // This is the Staff ID from the URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    email: "",    // Added email to state
     mobile: "",
-    roleName: "", // This corresponds to the 'role' column in your Staff table
+    roleName: "", 
     userId: 0
   });
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        // We use the corrected API call with ?id=
         const res = await getStaffDetail(Number(id));
         const staffData = res.data.data;
         
-        // Populate form using nested user data from your backend response
         setFormData({
           firstName: staffData.user.firstName,
           lastName: staffData.user.lastName,
+          email: staffData.user.email, // Mapping email from nested user object
           mobile: staffData.user.mobile,
           roleName: staffData.role || "", 
           userId: staffData.userId
@@ -47,20 +47,19 @@ const EditStaff = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // 1. Update Core User Details (Names and Mobile)
+      // 1. Update Core User Details
       await updateUser(formData.userId, {
         firstName: formData.firstName,
         lastName: formData.lastName,
         mobile: formData.mobile
       });
 
-      // 2. Update Staff-Specific Details (Designation/Role Name)
+      // 2. Update Staff-Specific Details
       await updateStaff(Number(id), {
         role: formData.roleName
       });
 
       toast.success("Staff details updated successfully!");
-      // Short delay before navigation so user can see the success toast
       setTimeout(() => navigate("/staff"), 1500);
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || "Failed to update staff";
@@ -103,6 +102,21 @@ const EditStaff = () => {
               </Form.Group>
             </Col>
           </Row>
+
+          {/* --- Email ID Field (Read-Only) --- */}
+          <Form.Group className="mb-3">
+            <Form.Label>Email Address</Form.Label>
+            <Form.Control 
+              type="email"
+              value={formData.email} 
+              readOnly 
+              disabled
+              style={{ backgroundColor: "#f8f9fa", cursor: "not-allowed" }}
+            />
+            <Form.Text className="text-muted">
+              Login email cannot be modified.
+            </Form.Text>
+          </Form.Group>
 
           <Form.Group className="mb-3">
             <Form.Label>Staff Designation (Role Name)</Form.Label>
