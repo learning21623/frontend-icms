@@ -8,19 +8,21 @@ export const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Function to set user and handle strict navigation
   const login = (token: string, navigate: any) => {
     localStorage.setItem("token", token);
     const decoded: any = jwtDecode(token);
     setUser(decoded);
 
-    // ✅ Strict Role-Based Navigation
-    if (decoded.role === "admin") {
-      navigate("/doctor");
-    } else if (decoded.role === "superAdmin") {
+    // ✅ Expanded Role-Based Navigation
+    // Check for role string or roleId based on your JWT structure
+    if (decoded.role === "superAdmin" || decoded.roleId === 1) {
       navigate("/dashboard");
+    } else if (decoded.role === "admin" || decoded.roleId === 2) {
+      navigate("/doctor");
+    } else if (decoded.role === "doctor" || decoded.roleId === 3 || decoded.role === "staff" || decoded.roleId === 4) {
+      // Redirect Staff and Doctors to the Patient List
+      navigate("/patient");
     }
-    // No "else" redirect here to prevent unauthorized access to dashboard
   };
 
   const logout = () => {

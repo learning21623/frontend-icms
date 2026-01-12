@@ -19,10 +19,17 @@ import StaffList from "../pages/staff/StaffList";
 import AddStaff from "../pages/staff/AddStaff";
 import EditStaff from "../pages/staff/EditStaff";
 
+// Patient Pages
+import AddPatient from "../pages/patient/AddPatient";
+import PatientList from "../pages/patient/PatientList";
+import PatientDetail from "../pages/patient/PatientDetail";
+import EditPatient from "../pages/patient/EditPatient";
+
 // Layout & Auth
 import { ProtectedRoute } from "../auth/ProtectedRoute";
 import Layout from "../components/layout/Layout";
 import AuthLayout from "../components/layout/AuthLayout";
+
 
 const AppRoutes = () => {
   return (
@@ -70,6 +77,41 @@ const AppRoutes = () => {
             <Layout>
               <EditStaff />
             </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Patient Module - Accessible by Doctors and Staff */}
+      {/* Patient Module - Accessible by Doctors and Staff */}
+      <Route
+        path="/patient"
+        element={
+          <ProtectedRoute roles={["doctor", "staff"]}>
+            <Layout><PatientList /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/patient/add"
+        element={
+          <ProtectedRoute roles={["doctor", "staff"]}>
+            <Layout><AddPatient /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/patient/detail/:id"
+        element={
+          <ProtectedRoute roles={["doctor", "staff"]}>
+            <Layout><PatientDetail /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/patient/edit/:id"
+        element={
+          <ProtectedRoute roles={["doctor", "staff"]}>
+            <Layout><EditPatient /></Layout>
           </ProtectedRoute>
         }
       />

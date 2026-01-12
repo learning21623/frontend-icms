@@ -1,7 +1,5 @@
-// src/components/layout/Sidebar.tsx
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import exp from "constants";
 
 const Sidebar = () => {
   const { user } = useAuth();
@@ -17,14 +15,22 @@ const Sidebar = () => {
         {/* SUPER ADMIN VIEW */}
         {user?.role === "superAdmin" && (
           <>
-          <li className="nav-item mb-2">
-            <Link to="/dashboard" className={`nav-link text-white ${isActive("/dashboard")}`}>Dashboard</Link>
-          </li>
-          <li className="nav-item mb-2">
-            <Link to="/users" className={`nav-link text-white ${isActive("/users")}`}>Hospitals List</Link>
-          </li>
+            <li className="nav-item mb-2">
+              <Link to="/dashboard" className={`nav-link text-white ${isActive("/dashboard")}`}>Dashboard</Link>
+            </li>
+            <li className="nav-item mb-2">
+              <Link to="/users" className={`nav-link text-white ${isActive("/users")}`}>Hospitals List</Link>
+            </li>
           </>
-          
+        )}
+
+        {/* ADMIN & DOCTOR & STAFF VIEW - Added Patient List here */}
+        {(user?.role === "admin" || user?.role === "doctor" || user?.role === "staff") && (
+          <>
+            <li className="nav-item mb-2">
+              <Link to="/patient" className={`nav-link text-white ${isActive("/patient")}`}>Patient List</Link>
+            </li>
+          </>
         )}
 
         {/* ADMIN VIEW */}
@@ -38,7 +44,6 @@ const Sidebar = () => {
             </li>
           </>
         )}
-
       </ul>
       <div className="mt-auto small text-muted ps-2">Role: {user?.role}</div>
     </div>
