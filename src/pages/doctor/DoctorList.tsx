@@ -1,9 +1,9 @@
 // src/pages/doctor/DoctorList.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Button, Table, TableBody, TableRow, TableCell, 
-  TableHead, Paper, TableContainer, IconButton, Tooltip 
+import {
+  Button, Table, TableBody, TableRow, TableCell,
+  TableHead, Paper, TableContainer, IconButton, Tooltip
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material"; // Material icons
 import { getDoctorList, deleteDoctor } from "../../api/doctorApi";
@@ -17,7 +17,7 @@ const DoctorList = () => {
   const loadDoctors = async () => {
     try {
       const res = await getDoctorList();
-      setDoctors(res.data.data); 
+      setDoctors(res.data.data);
     } catch (err) {
       console.error("Failed to fetch doctors", err);
     }
@@ -59,32 +59,36 @@ const DoctorList = () => {
       <Table>
         <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
           <TableRow>
-            <TableCell><strong>ID</strong></TableCell>
-            <TableCell><strong>Name</strong></TableCell>
-            <TableCell><strong>Specialization</strong></TableCell>
-            <TableCell><strong>Hospital</strong></TableCell>
-            <TableCell align="center"><strong>Actions</strong></TableCell>
+            <TableCell>ID</TableCell>
+            <TableCell>Name</TableCell>
+            <TableCell>Department</TableCell>
+            <TableCell>Specialization</TableCell>
+            <TableCell>Designation</TableCell>
+            {/* <TableCell>Hospital</TableCell> */}
+            <TableCell align="center">Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {doctors.map((d: any) => (
-            <TableRow key={d.id} hover>
+            <TableRow key={d.id}>
               <TableCell>{d.id}</TableCell>
               <TableCell>{d.user?.firstName} {d.user?.lastName}</TableCell>
+              <TableCell>{d.department}</TableCell>
               <TableCell>{d.specialization}</TableCell>
-              <TableCell>{d.hospital?.name}</TableCell>
+              <TableCell>{d.designation}</TableCell>
+              {/* <TableCell>{d.hospital?.name}</TableCell> */}
               <TableCell align="center">
                 <Tooltip title="Edit">
-                  <IconButton 
-                    color="primary" 
+                  <IconButton
+                    color="primary"
                     onClick={() => navigate(`/doctor/edit/${d.id}`)}
                   >
                     <Edit />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Delete">
-                  <IconButton 
-                    color="error" 
+                  <IconButton
+                    color="error"
                     onClick={() => handleDelete(d.id)}
                   >
                     <Delete />
