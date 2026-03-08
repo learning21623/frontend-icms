@@ -10,13 +10,16 @@ const EditDoctor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    email: "", // Added email to state
+    email: "",
     mobile: "",
     specialization: "",
+    department: "",
+    designation: "junior",
+    registrationNumber: "",
     userId: 0
   });
 
@@ -28,9 +31,12 @@ const EditDoctor = () => {
         setFormData({
           firstName: data.user.firstName,
           lastName: data.user.lastName,
-          email: data.user.email, // Mapping email from user object
+          email: data.user.email,
           mobile: data.user.mobile,
           specialization: data.specialization,
+          department: data.department,
+          designation: data.designation,
+          registrationNumber: data.registrationNumber,
           userId: data.userId
         });
         setLoading(false);
@@ -55,7 +61,10 @@ const EditDoctor = () => {
 
       // 2. Update Doctor Details (Specialization)
       await updateDoctor(Number(id), {
-        specialization: formData.specialization
+        specialization: formData.specialization,
+        department: formData.department,
+        designation: formData.designation,
+        registrationNumber: formData.registrationNumber
       });
 
       toast.success("Doctor updated successfully");
@@ -75,9 +84,9 @@ const EditDoctor = () => {
           <Col md={6}>
             <Form.Group className="mb-3">
               <Form.Label>First Name</Form.Label>
-              <Form.Control 
-                value={formData.firstName} 
-                onChange={(e) => setFormData({...formData, firstName: e.target.value})} 
+              <Form.Control
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                 required
               />
             </Form.Group>
@@ -85,9 +94,9 @@ const EditDoctor = () => {
           <Col md={6}>
             <Form.Group className="mb-3">
               <Form.Label>Last Name</Form.Label>
-              <Form.Control 
-                value={formData.lastName} 
-                onChange={(e) => setFormData({...formData, lastName: e.target.value})} 
+              <Form.Control
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                 required
               />
             </Form.Group>
@@ -97,10 +106,10 @@ const EditDoctor = () => {
         {/* --- Email ID Field (Read-Only) --- */}
         <Form.Group className="mb-3">
           <Form.Label>Email Address</Form.Label>
-          <Form.Control 
+          <Form.Control
             type="email"
-            value={formData.email} 
-            readOnly 
+            value={formData.email}
+            readOnly
             disabled
             style={{ backgroundColor: "#f8f9fa", cursor: "not-allowed" }}
           />
@@ -111,18 +120,18 @@ const EditDoctor = () => {
 
         <Form.Group className="mb-3">
           <Form.Label>Specialization</Form.Label>
-          <Form.Control 
-            value={formData.specialization} 
-            onChange={(e) => setFormData({...formData, specialization: e.target.value})} 
+          <Form.Control
+            value={formData.specialization}
+            onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
             required
           />
         </Form.Group>
 
         <Form.Group className="mb-4">
           <Form.Label>Mobile</Form.Label>
-          <Form.Control 
-            value={formData.mobile} 
-            onChange={(e) => setFormData({...formData, mobile: e.target.value})} 
+          <Form.Control
+            value={formData.mobile}
+            onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
             required
           />
         </Form.Group>
